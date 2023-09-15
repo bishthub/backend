@@ -5,6 +5,9 @@ const userRoutes = require('./routes/userRoutes');
 const productRoutes = require('./routes/productRoutes');
 const jackpotRoutes = require('./routes/jackpotRoutes');
 const walletRoutes = require('./routes/walletRoutes');
+const blogRoutes = require('./routes/blogRoutes');
+const entryPassRoutes = require('./routes/entryPassRoutes');
+const transactionRoutes = require('./routes/transactionRoutes');
 
 const app = express();
 app.use(express.json());
@@ -19,6 +22,9 @@ app.use('/api/user', userRoutes);
 app.use('/api/product', productRoutes);
 app.use('/api/jackpot', jackpotRoutes);
 app.use('/api/wallet', walletRoutes);
+app.use('/api/blog', blogRoutes);
+app.use('/api/entryPass', entryPassRoutes);
+app.use('/api/transaction', transactionRoutes);
 
 const PORT = 3000;
 app.listen(PORT, () => {
