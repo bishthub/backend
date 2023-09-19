@@ -9,6 +9,11 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Wallet',
   },
+  cart: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Cart',
+    required: true,
+  },
   spins: [
     {
       timestamp: Date,

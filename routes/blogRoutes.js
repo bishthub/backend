@@ -9,12 +9,7 @@ const adminMiddleware = require('../middleware/adminMiddleware');
 router.post('/blogs', authMiddleware, adminMiddleware, blogController.addBlog);
 
 // Get all blogs
-router.get(
-  '/blogs',
-  authMiddleware,
-  adminMiddleware,
-  blogController.getAllBlogs
-);
+router.get('/blogs', blogController.getAllBlogs);
 
 // Update a blog by ID
 router.patch(
