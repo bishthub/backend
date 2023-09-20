@@ -1,67 +1,63 @@
-// cartController.js
-const User = require('../models/userModel');
+const Cart = require("../models/cartModel");
 
-exports.getCart = async (req, res) => {
+// Get the user's cart
+async function getCart(req, res) {
   try {
-    const user = await User.findById(req.user._id).populate(
-      'cart.items.productId'
+    const userId = req.user._id; // Assuming you have user authentication middleware
+    const cart = await Cart.findOne({ user: userId }).populate(
+      "items.productId"
     );
-    if (!user) {
-      return res.status(404).send('User not found');
+    if (!cart) {
+      return res.status(404).json({ message: "Cart not found" });
     }
-
-    res.status(200).json(user.cart);
+    res.status(200).json(cart);
   } catch (error) {
-    res.status(500).send('Internal Server Error');
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
   }
-};
+}
 
-exports.updateCart = async (req, res) => {
+// Update the user's cart
+async function updateCart(req, res) {
   try {
+    const userId = req.user._id; // Assuming you have user authentication middleware
     const { productId, quantity } = req.body;
 
-    const user = await User.findById(req.user._id);
-    if (!user) {
-      return res.status(404).send('User not found');
+    // Find or create the user's cart
+    let cart = await Cart.findOne({ user: userId });
+    if (!cart) {
+      cart = new Cart({ user: userId, items: [] });
     }
 
-    // Check if the product is already in the cart
-    console.log('HERE', user);
-    const existingCartItem = user.cart.items.find((item) =>
+    // Check if the product already exists in the cart
+    const existingItem = cart.items.find((item) =>
       item.productId.equals(productId)
     );
 
-    if (existingCartItem) {
-      // Update the quantity if the product is already in the cart
-      existingCartItem.quantity = quantity;
+    if (existingItem) {
+      existingItem.quantity += quantity;
     } else {
-      // Add a new item to the cart if not already present
-      user.cart.items.push({ productId, quantity });
+      cart.items.push({ productId, quantity });
     }
 
-    await user.save();
-
-    res.status(200).send('Cart updated successfully');
+    await cart.save();
+    res.status(200).json(cart);
   } catch (error) {
-    console.log('error', error);
-    res.status(500).send('Internal Server Error');
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
   }
-};
+}
 
-exports.deleteCart = async (req, res) => {
+// Delete the user's cart
+async function deleteCart(req, res) {
   try {
-    const user = await User.findById(req.user._id);
-    if (!user) {
-      return res.status(404).send('User not found');
-    }
-
-    // Clear the cart by setting the items array to an empty array
-    user.cart.items = [];
-
-    await user.save();
-
-    res.status(200).send('Cart deleted successfully');
+    const userId = req.user._id; // Assuming you have user authentication middleware
+    await Cart.deleteOne({ user: userId });
+    res.status(204).end();
   } catch (error) {
-    res.status(500).send('Internal Server Error');
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
   }
-};
+}
+
+module.exports = { getCart, updateCart, deleteCart };

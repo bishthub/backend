@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
@@ -7,12 +7,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   walletId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Wallet',
-  },
-  cart: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Cart',
-    required: true,
+    ref: "Wallet",
   },
   spins: [
     {
@@ -21,8 +16,8 @@ const userSchema = new mongoose.Schema({
   ],
   role: {
     type: String,
-    enum: ['admin', 'staff', 'member'],
-    default: 'admin',
+    enum: ["admin", "staff", "member"],
+    default: "admin",
   },
   img_url: { type: String },
   fullName: { type: String },
@@ -34,4 +29,4 @@ const userSchema = new mongoose.Schema({
   telegram: { type: String },
 });
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model("User", userSchema);

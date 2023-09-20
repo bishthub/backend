@@ -1,7 +1,7 @@
-const User = require('../models/userModel');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
-const Wallet = require('../models/walletModel');
+const User = require("../models/userModel");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
+const Wallet = require("../models/walletModel");
 
 exports.register = async (req, res) => {
   try {
@@ -10,13 +10,13 @@ exports.register = async (req, res) => {
       username: req.body.username,
     });
     if (userWithSameUsername) {
-      return res.status(400).send('Username is already registered');
+      return res.status(400).send("Username is already registered");
     }
 
     // Check if email is taken
     const userWithSameEmail = await User.findOne({ email: req.body.email });
     if (userWithSameEmail) {
-      return res.status(400).send('Email is already registered');
+      return res.status(400).send("Email is already registered");
     }
 
     // Check if mobile number is taken
@@ -24,7 +24,7 @@ exports.register = async (req, res) => {
       mobileNumber: req.body.mobileNumber,
     });
     if (userWithSameMobileNumber) {
-      return res.status(400).send('Mobile number is already registered');
+      return res.status(400).send("Mobile number is already registered");
     }
 
     // If all checks pass, proceed to register the new user
@@ -45,10 +45,11 @@ exports.register = async (req, res) => {
 
     // Link user to the wallet
     user.walletId = wallet._id;
+    console.log("USER", user);
     await user.save();
-    res.status(201).send('User registered');
+    res.status(201).send("User registered");
   } catch (error) {
-    res.status(500).send('Internal Server Error');
+    res.status(500).send("Internal Server Error");
   }
 };
 
@@ -65,15 +66,15 @@ exports.login = async (req, res) => {
   });
 
   if (!user || !(await bcrypt.compare(password, user.password))) {
-    return res.status(400).send('Invalid credentials');
+    return res.status(400).send("Invalid credentials");
   }
 
-  const token = jwt.sign({ _id: user._id, role: user.role }, 'YOUR_SECRET', {
-    expiresIn: '30m',
+  const token = jwt.sign({ _id: user._id, role: user.role }, "YOUR_SECRET", {
+    expiresIn: "30m",
   });
   res.send(token);
 };
 
 exports.dashboard = (req, res) => {
-  res.send('Dashboard Content');
+  res.send("Dashboard Content");
 };
