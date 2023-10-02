@@ -1,5 +1,6 @@
-const User = require('../models/userModel');
-const Wallet = require('../models/walletModel');
+const User = require("../models/userModel");
+const Wallet = require("../models/walletModel");
+const Notification = require("../models/notificationModel");
 
 exports.updateProfile = async (req, res) => {
   try {
@@ -21,27 +22,27 @@ exports.updateProfile = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(404).send('User not found');
+      return res.status(404).send("User not found");
     }
 
     res.status(200).send(user);
   } catch (error) {
-    res.status(500).send('Internal Server Error');
+    res.status(500).send("Internal Server Error");
   }
 };
 
 exports.getProfile = async (req, res) => {
   try {
     const userId = req.params.id; // Get the user ID from the route parameter
-    const user = await User.findById(userId).select('-password'); // Exclude password from the response
+    const user = await User.findById(userId).select("-password"); // Exclude password from the response
 
     if (!user) {
-      return res.status(404).send('User not found');
+      return res.status(404).send("User not found");
     }
 
     res.status(200).send(user);
   } catch (error) {
-    res.status(500).send('Internal Server Error');
+    res.status(500).send("Internal Server Error");
   }
 };
 
@@ -50,14 +51,14 @@ exports.getLeaderboard = async (req, res) => {
     const leaderboard = await Wallet.aggregate([
       {
         $lookup: {
-          from: 'users', // Assuming your users collection is named 'users'
-          localField: 'userId',
-          foreignField: '_id',
-          as: 'user',
+          from: "users", // Assuming your users collection is named 'users'
+          localField: "userId",
+          foreignField: "_id",
+          as: "user",
         },
       },
       {
-        $unwind: '$user',
+        $unwind: "$user",
       },
       {
         $sort: { tokens: -1 }, // Sort by tokens in descending order
@@ -65,8 +66,8 @@ exports.getLeaderboard = async (req, res) => {
       {
         $project: {
           _id: 0, // Exclude the _id field
-          username: '$user.username', // Get the username from the user document
-          img: '$user.img_url', // Get the user's image from the user document (update this field as per your UserModel)
+          username: "$user.username", // Get the username from the user document
+          img: "$user.img_url", // Get the user's image from the user document (update this field as per your UserModel)
           tokens: 1, // Include the tokens field
         },
       },
@@ -74,6 +75,34 @@ exports.getLeaderboard = async (req, res) => {
 
     res.json(leaderboard);
   } catch (error) {
-    res.status(500).send('Internal Server Error');
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+exports.getNotifications = async (req, res) => {
+  try {
+    const userId = req.user._id; // Assuming you've set the user ID in the auth middleware
+
+    // Find the user by ID
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+
+    // Find notifications by IDs
+    const notifications = await Notification.find({
+      _id: { $in: user.notifications },
+    });
+
+    // Extract the text and timestamps from notifications
+    const formattedNotifications = notifications.map((notification) => ({
+      text: notification.text,
+      createdAt: notification.createdAt,
+    }));
+
+    res.status(200).json(formattedNotifications);
+  } catch (error) {
+    res.status(500).send("Internal Server Error");
   }
 };

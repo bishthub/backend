@@ -72,7 +72,13 @@ exports.login = async (req, res) => {
   const token = jwt.sign({ _id: user._id, role: user.role }, "YOUR_SECRET", {
     expiresIn: "30m",
   });
-  res.send(token);
+  const userdata = {
+    _id: user._id,
+    username: user.username,
+    email: user.email,
+    role: user.role,
+  };
+  res.json({ token, user: userdata });
 };
 
 exports.dashboard = (req, res) => {

@@ -13,13 +13,13 @@ const cartRoutes = require("./routes/cartRoutes");
 const emailRoutes = require("./routes/emailRoutes");
 
 const app = express();
-app.use(express.json());
+app.use(express.json({ limit: "20mb" }));
 require("dotenv").config();
 const corsOptions = {
   origin: "*", // Replace with your local development URL
 };
 
-app.use(cors(corsOptions));
+app.use(cors());
 mongoose.connect("mongodb+srv://bisht:bishtji@dashboard.ihnggmw.mongodb.net/", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
