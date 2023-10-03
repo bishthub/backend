@@ -61,14 +61,14 @@ exports.getLeaderboard = async (req, res) => {
         $unwind: "$user",
       },
       {
-        $sort: { tokens: -1 }, // Sort by tokens in descending order
+        $sort: { totalTokens: -1 }, // Sort by tokens in descending order
       },
       {
         $project: {
           _id: 0, // Exclude the _id field
           username: "$user.username", // Get the username from the user document
           img: "$user.img_url", // Get the user's image from the user document (update this field as per your UserModel)
-          tokens: 1, // Include the tokens field
+          totalTokens: 1, // Include the tokens field
         },
       },
     ]);
