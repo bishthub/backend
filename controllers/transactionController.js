@@ -131,8 +131,8 @@ exports.sendFund = async (req, res) => {
       moduleName: "Transfer",
       amount: tokens,
       chain,
-      senderWalletId: senderUser._id,
-      recipientWalletId: recipientUser._id,
+      from: senderUser._id,
+      to: recipientUser._id,
     });
     await newTransaction.save();
 
