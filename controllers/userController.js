@@ -106,3 +106,19 @@ exports.getNotifications = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
+
+const getReferredUsers = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const user = await User.findById(userId);
+    const referredUsers = await User.find({ referredBy: userId });
+    return res.status(200).json({
+      data: {
+        referralCode: user.referralCode,
+        referredUsers: referredUsers,
+      },
+    });
+  } catch (err) {
+    return res.status(400).json({ error_msg: err.message });
+  }
+};

@@ -27,6 +27,19 @@ const userSchema = new mongoose.Schema({
   linkedin: { type: String },
   discord: { type: String },
   telegram: { type: String },
+  referralCode: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  isReferred: {
+    type: Boolean,
+    default: false,
+  },
+  referredBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
   notifications: [
     {
       type: mongoose.Schema.Types.ObjectId,

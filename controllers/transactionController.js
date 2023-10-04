@@ -27,6 +27,7 @@ exports.recordTransaction = async (req, res) => {
 
 exports.getTransactions = async (req, res) => {
   try {
+    const userId = req.user._id;
     const { moduleName, amount, date } = req.query;
 
     const filters = {};
@@ -34,9 +35,27 @@ exports.getTransactions = async (req, res) => {
     if (amount) filters.amount = amount;
     if (date) filters.date = new Date(date);
 
-    const transactions = await Transaction.find(filters);
+    // Use $or to match either from or to
+    const transactions = await Transaction.find({
+      $or: [{ from: userId }, { to: userId }],
+      ...filters, // Add other filters
+    })
+      .populate("from", "username") // Populate the 'from' field with 'username'
+      .populate("to", "username"); // Populate the 'to' field with 'username'
 
-    res.status(200).json(transactions);
+    // Modify each transaction to include 'transfer' and 'username' properties
+    const modifiedTransactions = transactions.map((transaction) => {
+      const isSender = transaction.from._id.toString() === userId.toString();
+      return {
+        ...transaction.toObject(),
+        transfer: isSender ? "out" : "in",
+        username: isSender
+          ? transaction.to.username
+          : transaction.from.username,
+      };
+    });
+
+    res.status(200).json(modifiedTransactions);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -47,12 +66,22 @@ exports.sendFund = async (req, res) => {
   try {
     const { username, chain, tokens } = req.body;
     const sender = req.user._id;
+    const recipientUsername = username; // Assuming the sender is authenticated
+    const recipientUser = await User.findOne({ username: recipientUsername });
     console.log(
-      "🚀 ~ file: transactionController.js:49 ~ exports.sendFund= ~ user:",
-      sender
+      "🚀 ~ file: transactionController.js:52 ~ exports.sendFund= ~ recipientUser:",
+      recipientUser.id
     );
+
     // Find the sender's user and wallet
     const senderUser = await User.findById(sender);
+    console.log(
+      "🚀 ~ file: transactionController.js:55 ~ exports.sendFund= ~ senderUser:",
+      senderUser.id
+    );
+
+    if (senderUser.id == recipientUser.id)
+      return res.status(400).send("Sender and recipient cant be same");
 
     if (!senderUser) {
       return res.status(404).send("Sender user not found");
@@ -73,13 +102,6 @@ exports.sendFund = async (req, res) => {
     }
 
     // Find the recipient's user and wallet
-    const recipientUsername = req.body.username; // Assuming the sender is authenticated
-    console.log(
-      "🚀 ~ file: transactionController.js:82 ~ exports.sendFund= ~ recipientUsername:",
-      recipientUsername
-    );
-
-    const recipientUser = await User.findOne({ username: recipientUsername });
     if (!recipientUser) {
       return res.status(404).send("Recipient user not found");
     }
@@ -108,6 +130,9 @@ exports.sendFund = async (req, res) => {
     const newTransaction = new Transaction({
       moduleName: "Transfer",
       amount: tokens,
+      chain,
+      senderWalletId: senderUser._id,
+      recipientWalletId: recipientUser._id,
     });
     await newTransaction.save();
 

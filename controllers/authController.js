@@ -2,6 +2,11 @@ const User = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const Wallet = require("../models/walletModel");
+let nanoid;
+
+const loadDependencies = async () => {
+  ({ nanoid } = await import("nanoid"));
+};
 
 exports.register = async (req, res) => {
   try {
@@ -26,16 +31,34 @@ exports.register = async (req, res) => {
     if (userWithSameMobileNumber) {
       return res.status(400).send("Mobile number is already registered");
     }
-
-    // If all checks pass, proceed to register the new user
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
-
     const user = new User({
       username: req.body.username,
       email: req.body.email,
       mobileNumber: req.body.mobileNumber,
       password: hashedPassword,
     });
+
+    user.referralCode = nanoid(7);
+    console.log(
+      "🚀 ~ file: authController.js:42 ~ exports.register= ~ referralCode:",
+      referralCode
+    );
+
+    // Check for referral
+    if (req.body.referralCode) {
+      const referringUser = await User.findOne({
+        referralCode: req.body.referralCode,
+      });
+      if (!referringUser) {
+        return res.status(400).json({ error_msg: "Invalid referral code" });
+      }
+      // Add referring user's id and set isReferred to true
+      user.referredBy = referringUser._id;
+      user.isReferred = true;
+    }
+
+    // If all checks pass, proceed to register the new user
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
     const wallet = new Wallet({
       userId: user._id,
