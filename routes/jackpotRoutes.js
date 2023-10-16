@@ -8,5 +8,6 @@ router.use(authMiddleware);
 
 router.post('/spin', jackpotController.spin);
 router.get('/wallet/:id', jackpotController.getWalletDetails);
+router.post('/jackpotItemsSpinner', jackpotController.jackpotItemsSpinner);
 
 module.exports = router;
