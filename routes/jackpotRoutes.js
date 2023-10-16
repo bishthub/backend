@@ -4,11 +4,15 @@ const jackpotController = require("../controllers/jackpotController");
 const authMiddleware = require("../middleware/authMiddleware");
 
 // Ensure the user is authenticated before accessing the jackpot routes
-router.use(authMiddleware);
+// router.use(authMiddleware);
 
-router.post("/spin", jackpotController.spin);
-router.get("/wallet/:id", jackpotController.getWalletDetails);
-router.post("/jackpotItemsSpinner", jackpotController.jackpotItemsSpinner);
-router.post("/can-spin", jackpotController.canSpin);
+router.post("/spin", authMiddleware, jackpotController.spin);
+router.get("/wallet/:id", authMiddleware, jackpotController.getWalletDetails);
+router.post(
+  "/jackpotItemsSpinner",
+  authMiddleware,
+  jackpotController.jackpotItemsSpinner
+);
+router.get("/can-spin", authMiddleware, jackpotController.canSpin);
 
 module.exports = router;
