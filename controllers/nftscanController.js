@@ -13,6 +13,7 @@ exports.getuserData = async (req, res) => {
     const showAttribute = req.query.show_attribute || 'false';
     const sortField = req.query.sort_field || '';
     const sortDirection = req.query.sort_direction || '';
+    const limit = req.query.limit || 100;
 
     const headers = {
       'X-API-KEY': 'YYfPYkvejpby2oolf8Ub1M3w',
@@ -24,17 +25,25 @@ exports.getuserData = async (req, res) => {
         show_attribute: showAttribute,
         sort_field: sortField,
         sort_direction: sortDirection,
+        limit: limit,
       },
       headers,
     });
 
+    // console.log('response: ' + JSON.stringify(response.data.data));
+
     // Extract the content array from the response
-    const content = response.data.data.content.map((item) => ({
-      contract_address: item.contract_address,
-      contract_name: item.contract_name,
-      token_id: item.token_id,
-      nftscan_uri: item.nftscan_uri || `ipfs://${item.image_uri}`,
-    }));
+    const content = response.data.data.content.map((item) => {
+      const nftscan_uri = item.nftscan_uri
+        ? item.nftscan_uri
+        : `ipfs://${item.image_uri}`;
+      return {
+        contract_address: item.contract_address,
+        contract_name: item.contract_name,
+        token_id: item.token_id,
+        nftscan_uri: nftscan_uri,
+      };
+    });
 
     // Create a modified response object with total and the modified content
     const modifiedResponse = {

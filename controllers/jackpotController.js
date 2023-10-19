@@ -1,5 +1,5 @@
-const User = require("../models/userModel");
-const Wallet = require("../models/walletModel");
+const User = require('../models/userModel');
+const Wallet = require('../models/walletModel');
 
 function spinJackpot() {
   const randomNum = Math.floor(Math.random() * 100000) + 1;
@@ -49,7 +49,7 @@ exports.spin = async (req, res) => {
   res.send({ prize });
 };
 
-const items = ["Item1", "Item2", "Item3", "Item4", "Item5", "Item6", "Item7"];
+const items = ['Item1', 'Item2', 'Item3', 'Item4', 'Item5', 'Item6', 'Item7'];
 
 function spinItems() {
   const randomIndex = Math.floor(Math.random() * items.length);
@@ -94,7 +94,7 @@ exports.getWalletDetails = async (req, res) => {
   const wallet = await Wallet.findOne({ userId: req.user._id });
 
   if (!wallet) {
-    return res.status(404).send("Wallet not found");
+    return res.status(404).send('Wallet not found');
   }
 
   res.send(wallet);
@@ -112,11 +112,11 @@ exports.canSpin = async (req, res) => {
     } else {
       return res.status(200).json({
         canSpin: true,
-        message: "You can Spin",
+        message: 'You can Spin',
       });
     }
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal server error" });
+    console.log(error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
