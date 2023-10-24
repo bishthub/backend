@@ -14,6 +14,11 @@ const userSchema = new mongoose.Schema({
       timestamp: Date,
     },
   ],
+  jackpots: [
+    {
+      timestamp: Date,
+    },
+  ],
   role: {
     type: String,
     enum: ["admin", "staff", "member"],
