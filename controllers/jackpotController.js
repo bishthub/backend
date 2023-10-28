@@ -22,7 +22,7 @@ async function canSpin(userId) {
   // Filter out spins that are older than 24 hours
   user.spins = user.spins.filter((spin) => spin.timestamp > oneDayAgo);
 
-  return user.spins.length < 3;
+  return user.spins.length < 10;
 }
 
 async function canJackpot(userId) {
