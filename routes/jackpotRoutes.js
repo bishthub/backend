@@ -14,6 +14,11 @@ router.post(
   authMiddleware,
   jackpotController.jackpotItemsSpinner
 );
+router.post(
+  "/jackpotSpinner",
+  authMiddleware,
+  jackpotController.jackpotSpinner
+);
 router.get("/can-spin", authMiddleware, jackpotController.canSpin);
 router.get("/can-jackpot", authMiddleware, jackpotController.canJackpot);
 

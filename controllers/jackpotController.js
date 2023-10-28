@@ -92,15 +92,30 @@ exports.jackpotItemsSpinner = async (req, res) => {
 
   const spinResult = spinItemsJackpot();
 
-  const wallet = await Wallet.findOne({ userId: userId });
-  wallet.tokens += spinResult.reward;
-  await wallet.save();
+  // const wallet = await Wallet.findOne({ userId: userId });
+  // wallet.tokens += spinResult.reward;
+  // await wallet.save();
 
   const user = await User.findById(userId);
   user.spins.push({ timestamp: new Date() });
   await user.save();
 
   res.send(spinResult);
+};
+exports.jackpotSpinner = async (req, res) => {
+  const userId = req.user._id;
+
+  if (!(await canJackpot(userId))) {
+    return res
+      .status(400)
+      .send("You've reached the maximum spins for the last 24 hours");
+  }
+
+  const user = await User.findById(userId);
+  user.jackpots.push({ timestamp: new Date() });
+  await user.save();
+
+  res.send({ canJackpots: true });
 };
 
 exports.getWalletDetails = async (req, res) => {
