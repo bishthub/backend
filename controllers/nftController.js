@@ -1,9 +1,9 @@
-const { ethers } = require("ethers");
-const abi = require("../services/abi.json");
-require("dotenv").config();
+const { ethers } = require('ethers');
+const abi = require('../services/omniAbi.json');
+require('dotenv').config();
 
 const contractAbi = abi;
-const contractAddress = "0xC51f9033ae9C1A342a3cd9722a085fB6B4936D63";
+const contractAddress = '0xC51f9033ae9C1A342a3cd9722a085fB6B4936D63';
 
 exports.mintNFTbyOwner = async (req, res) => {
   try {
@@ -16,7 +16,7 @@ exports.mintNFTbyOwner = async (req, res) => {
 
     // Assume you have the RPC URL for the Omni network
     const provider = new ethers.providers.JsonRpcProvider(
-      "https://testnet.omni.network"
+      'https://testnet.omni.network'
     );
 
     // Connect the wallet to the Omni network
@@ -29,7 +29,7 @@ exports.mintNFTbyOwner = async (req, res) => {
       connectedWallet
     );
     console.log(
-      "🚀 ~ file: nftController.js:30 ~ exports.mintNFTbyOwner= ~ co̥ntract:",
+      '🚀 ~ file: nftController.js:30 ~ exports.mintNFTbyOwner= ~ co̥ntract:',
       contract
     );
 
@@ -40,11 +40,11 @@ exports.mintNFTbyOwner = async (req, res) => {
     const receipt = await mintTx.wait();
 
     res.status(200).json({
-      message: "NFT minted successfully",
+      message: 'NFT minted successfully',
       transactionReceipt: receipt,
     });
   } catch (error) {
-    console.error("Error minting NFT:", error);
-    res.status(500).json({ error: "Error minting NFT" });
+    console.error('Error minting NFT:', error);
+    res.status(500).json({ error: 'Error minting NFT' });
   }
 };

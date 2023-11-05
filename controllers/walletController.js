@@ -1,5 +1,68 @@
 const Wallet = require('../models/walletModel');
 const Chain = require('../models/chainModel');
+const omniAbi = require('../services/omniAbi.json');
+const arbAbi = require('../services/arbAbi.json');
+const { ethers } = require('ethers');
+
+exports.getWalletandNFTDetails = async (req, res) => {
+  try {
+    const wallet = await Wallet.findOne({ userId: req.user._id });
+    if (!wallet) {
+      return res.status(404).send('Wallet not found');
+    }
+
+    let nftDetails = [];
+
+    for (const chain of wallet.chains) {
+      const { chainName, walletAddress } = chain;
+
+      let provider, contractAddress, contractABI, balance;
+
+      switch (chainName.toLowerCase()) {
+        case 'omni':
+          provider = new ethers.providers.JsonRpcProvider(
+            'https://testnet.omni.network'
+          );
+          contractAddress = '0x2E84547878CeD3B28C6060ec5b7afA0ec49892CC';
+          contractABI = omniAbi;
+          break;
+        case 'arbitrum':
+          provider = new ethers.providers.JsonRpcProvider(
+            'https://goerli-rollup.arbitrum.io/rpc'
+          );
+          contractAddress = '0x2e84547878ced3b28c6060ec5b7afa0ec49892cc';
+          contractABI = arbAbi;
+          break;
+        default:
+          console.log(`Unsupported chain: ${chainName}`);
+          continue;
+      }
+
+      const contract = new ethers.Contract(
+        contractAddress,
+        contractABI,
+        provider
+      );
+
+      // Differentiate the method call based on the chain
+      if (chainName.toLowerCase() === 'arbitrum') {
+        balance = await contract.countByUser(walletAddress);
+      } else if (chainName.toLowerCase() === 'omni') {
+        balance = await contract.balanceOf(walletAddress);
+      } else {
+        // Skip unsupported chains
+        continue;
+      }
+
+      nftDetails.push({ chainName, balance: balance.toString() });
+    }
+
+    res.json(nftDetails);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
 
 exports.addDefaultChains = async (req, res) => {
   try {

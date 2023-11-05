@@ -23,6 +23,7 @@ router.put(
 );
 router.delete('/delete-chain/:chainId', walletController.deleteChain);
 router.get('/', walletController.getWalletDetails);
+router.get('/getWalletandNFTDetails', walletController.getWalletandNFTDetails);
 
 router.post(
   '/add-default-chains',
