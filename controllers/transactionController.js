@@ -167,7 +167,6 @@ exports.sendFund = async (req, res) => {
 exports.requestFunds = async (req, res) => {
   try {
     const { chain, tokens } = req.body;
-    const requesterUserId = req.user._id;
     const recipientUsername = req.body.username;
 
     // Find the recipient's user

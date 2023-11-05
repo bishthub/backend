@@ -1,12 +1,11 @@
-const Product = require("../models/productModel");
-
+const Product = require('../models/productModel');
 exports.addProduct = async (req, res) => {
   try {
     const product = new Product(req.body);
     await product.save();
     res.status(201).send(product);
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    res.status(500).send('Internal Server Error');
   }
 };
 
@@ -23,7 +22,7 @@ exports.getAllProducts = async (req, res) => {
 
     res.status(200).send(products);
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    res.status(500).send('Internal Server Error');
   }
 };
 
@@ -33,7 +32,7 @@ exports.updateProduct = async (req, res) => {
     const product = await Product.findById(req.params.id);
 
     if (!product) {
-      return res.status(404).send("Product not found");
+      return res.status(404).send('Product not found');
     }
 
     updates.forEach((update) => (product[update] = req.body[update]));
@@ -41,7 +40,7 @@ exports.updateProduct = async (req, res) => {
 
     res.status(200).send(product);
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    res.status(500).send('Internal Server Error');
   }
 };
 
@@ -50,11 +49,11 @@ exports.deleteProduct = async (req, res) => {
     const product = await Product.findByIdAndDelete(req.params.id);
 
     if (!product) {
-      return res.status(404).send("Product not found");
+      return res.status(404).send('Product not found');
     }
 
-    res.status(200).send({ message: "Product deleted successfully" });
+    res.status(200).send({ message: 'Product deleted successfully' });
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    res.status(500).send('Internal Server Error');
   }
 };
