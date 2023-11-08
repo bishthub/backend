@@ -20,7 +20,6 @@ const schemas = {
 
   updateChainSchema: Joi.object({
     chainId: Joi.string().required(),
-    chainName: Joi.string().required(),
     walletAddress: Joi.string().required(),
     tokens: Joi.number().min(0),
     isPrimary: Joi.boolean().required(),

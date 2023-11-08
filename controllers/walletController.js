@@ -186,7 +186,7 @@ exports.addChain = async (req, res) => {
 // Update an existing chain in the wallet's chains array
 exports.updateChain = async (req, res) => {
   try {
-    const { chainId, chainName, walletAddress, tokens, isPrimary } = req.body;
+    const { chainId, walletAddress, isPrimary } = req.body;
     const userId = req.user._id; // Assuming you have the user's ID in the request
 
     const wallet = await Wallet.findOne({ userId });
@@ -195,7 +195,9 @@ exports.updateChain = async (req, res) => {
       return res.status(404).send('Wallet not found');
     }
 
-    const existingChain = wallet.chains.find((chain) => chain._id == chainId);
+    const existingChain = wallet.chains.find(
+      (chain) => chain.chainId == chainId
+    );
 
     if (!existingChain) {
       return res.status(404).send('Chain not found');
@@ -207,20 +209,12 @@ exports.updateChain = async (req, res) => {
         chain.isPrimary = false;
       });
     }
-
-    existingChain.chainName = chainName;
     existingChain.walletAddress = walletAddress;
-    existingChain.tokens = tokens;
     existingChain.isPrimary = isPrimary;
-
-    wallet.totalTokens = wallet.chains.reduce(
-      (sum, chain) => sum + chain.tokens,
-      0
-    );
 
     await wallet.save();
 
-    res.status(200).json({ message: 'Chain updated successfully' });
+    res.status(200).json({ wallet });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
