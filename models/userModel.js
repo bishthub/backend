@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   walletId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Wallet",
+    ref: 'Wallet',
   },
   spins: [
     {
@@ -21,8 +21,8 @@ const userSchema = new mongoose.Schema({
   ],
   role: {
     type: String,
-    enum: ["admin", "staff", "member"],
-    default: "admin",
+    enum: ['admin', 'staff', 'member'],
+    default: 'admin',
   },
   img_url: { type: String },
   fullName: { type: String },
@@ -43,14 +43,16 @@ const userSchema = new mongoose.Schema({
   },
   referredBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: 'User',
   },
+  referredUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  totalReferred: { type: Number, default: 0 },
   notifications: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Notification",
+      ref: 'Notification',
     },
   ],
 });
 
-module.exports = mongoose.model("User", userSchema);
+module.exports = mongoose.model('User', userSchema);

@@ -19,6 +19,7 @@ const schemas = {
   }),
 
   updateChainSchema: Joi.object({
+    chainName: Joi.string(),
     chainId: Joi.string().required(),
     walletAddress: Joi.string().required(),
     tokens: Joi.number().min(0),

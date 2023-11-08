@@ -65,11 +65,13 @@ exports.register = async (req, res) => {
         referralCode: req.body.referralCode,
       });
       if (!referringUser) {
-        return res.status(400).json({ error_msg: 'Invalid referral code' });
+        return res.status(400).send('Invalid referral code');
       }
-      // Add referring user's id and set isReferred to true
-      user.referredBy = referringUser._id;
+      user.referredBy = referringUser._id; // assuming your User model has a referredBy field
       user.isReferred = true;
+      referringUser.referredUsers.push(user._id);
+      referringUser.totalReferred += 1;
+      await referringUser.save();
     }
 
     const wallet = new Wallet({

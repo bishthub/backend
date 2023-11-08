@@ -26,7 +26,7 @@ exports.getWalletandNFTDetails = async (req, res) => {
           contractAddress = '0x2E84547878CeD3B28C6060ec5b7afA0ec49892CC';
           contractABI = omniAbi;
           break;
-        case 'arbitrum':
+        case 'arbitrum goerli':
           provider = new ethers.providers.JsonRpcProvider(
             'https://goerli-rollup.arbitrum.io/rpc'
           );
@@ -45,7 +45,7 @@ exports.getWalletandNFTDetails = async (req, res) => {
       );
 
       // Differentiate the method call based on the chain
-      if (chainName.toLowerCase() === 'arbitrum') {
+      if (chainName.toLowerCase() === 'arbitrum goerli') {
         balance = await contract.countByUser(walletAddress);
       } else if (chainName.toLowerCase() === 'omni') {
         balance = await contract.balanceOf(walletAddress);
@@ -186,7 +186,7 @@ exports.addChain = async (req, res) => {
 // Update an existing chain in the wallet's chains array
 exports.updateChain = async (req, res) => {
   try {
-    const { chainId, walletAddress, isPrimary } = req.body;
+    const { chainName, chainId, walletAddress, isPrimary } = req.body;
     const userId = req.user._id; // Assuming you have the user's ID in the request
 
     const wallet = await Wallet.findOne({ userId });
