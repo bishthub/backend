@@ -133,30 +133,45 @@ exports.getWalletDetails = async (req, res) => {
 // Add a new chain to the wallet's chains array
 exports.addChain = async (req, res) => {
   try {
-    const { chainName, walletAddress, tokens, isPrimary } = req.body;
+    const { chainId, walletAddress, isPrimary } = req.body;
     const userId = req.user._id; // Assuming you have the user's ID in the request
 
-    const wallet = await Wallet.findOne({ userId });
+    // Check if the provided chainId matches an _id in the default chains
+    const defaultChain = await Chain.findById(chainId);
+    console.log(
+      '🚀 ~ file: walletController.js:141 ~ exports.addChain= ~ default̥Chain:',
+      defaultChain
+    );
+    if (!defaultChain) {
+      return res.status(404).send('Chain ID does not match any default chains');
+    }
 
+    // Find the user's wallet
+    const wallet = await Wallet.findOne({ userId });
     if (!wallet) {
       return res.status(404).send('Wallet not found');
     }
 
-    const newChain = {
-      chainName,
-      walletAddress,
-      tokens,
-      isPrimary: false, // By default, the new chain is not primary
-    };
+    // Check if the chain already exists in the user's wallet
+    const chainExists = wallet.chains.some((chain) => chain.chainId == chainId);
+    if (chainExists) {
+      return res.status(400).send('This chain is already added to the wallet');
+    }
 
+    // If isPrimary is true, unset the primary status of other chains
     if (isPrimary) {
-      // Ensure only one primary chain exists
       wallet.chains.forEach((chain) => {
         chain.isPrimary = false;
       });
-      newChain.isPrimary = true;
     }
 
+    // Add the new chain to the wallet
+    const newChain = {
+      chainId,
+      chainName: defaultChain.chainName,
+      walletAddress,
+      isPrimary: !!isPrimary, // Coerce isPrimary to boolean
+    };
     wallet.chains.push(newChain);
 
     await wallet.save();

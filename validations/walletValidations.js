@@ -12,7 +12,7 @@ const schemas = {
   }),
 
   addChainSchema: Joi.object({
-    chainName: Joi.string().required(),
+    chainId: Joi.string().required(),
     walletAddress: Joi.string().required(),
     tokens: Joi.number().min(0),
     isPrimary: Joi.boolean().required(),
@@ -22,7 +22,7 @@ const schemas = {
     chainId: Joi.string().required(),
     chainName: Joi.string().required(),
     walletAddress: Joi.string().required(),
-    tokens: Joi.number().min(0).required(),
+    tokens: Joi.number().min(0),
     isPrimary: Joi.boolean().required(),
   }),
 };
