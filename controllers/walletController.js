@@ -158,11 +158,10 @@ exports.addChain = async (req, res) => {
     }
 
     wallet.chains.push(newChain);
-    wallet.totalTokens += tokens;
 
     await wallet.save();
 
-    res.status(201).json({ message: 'Chain added successfully' });
+    res.status(201).json({ newChain });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });

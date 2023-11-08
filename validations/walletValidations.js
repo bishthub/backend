@@ -14,7 +14,7 @@ const schemas = {
   addChainSchema: Joi.object({
     chainName: Joi.string().required(),
     walletAddress: Joi.string().required(),
-    tokens: Joi.number().min(0).required(),
+    tokens: Joi.number().min(0),
     isPrimary: Joi.boolean().required(),
   }),
 
