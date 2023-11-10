@@ -1,12 +1,54 @@
+const { ethers } = require('ethers');
 const Question = require('../models/questionModel');
+require('dotenv').config();
+// Assuming you have your contract ABI and address
+const contractABI = require('../services/taiko.json');
+const contractAddress = '0x7e3B78015f26405d5f2460c9A35F77d64CFA5A32';
+
+// Provider and Signer setup (Using a private key - Be careful with private key management)
+const provider = new ethers.providers.JsonRpcProvider(
+  'https://rpc.jolnir.taiko.xyz'
+);
+const privateKey = process.env.PRIVATE_KEY; // Store this securely and never expose it
+const wallet = new ethers.Wallet(privateKey, provider);
+
+const contract = new ethers.Contract(contractAddress, contractABI, wallet);
 
 exports.addQuestion = async (req, res) => {
   try {
+    // Count existing questions to determine the next questionId
+    const questionCount = await Question.countDocuments();
+    const questionId = questionCount + 1;
+    req.body.questionNumber = questionId;
     const question = new Question(req.body);
     await question.save();
+
+    // Find the option with blockchainNumber
+    const blockchainOption = question.options.find(
+      (option) => option.blockchainNumber
+    );
+
+    if (!blockchainOption) {
+      return res
+        .status(400)
+        .send({ error: 'Blockchain number not specified.' });
+    }
+
+    // Use the blockchainNumber from the option
+    const blockchainNumber = blockchainOption.blockchainNumber;
+
+    // Interact with the contract
+    const tx = await contract.addQuestion(
+      questionId.toString(),
+      blockchainNumber.toString(),
+      { gasLimit: ethers.utils.hexlify(1000000) }
+    );
+    await tx.wait();
+
     res.status(201).send(question);
   } catch (error) {
-    res.status(400).send(error);
+    console.error('Error in addQuestion:', error);
+    res.status(500).send({ error: 'Internal Server Error' });
   }
 };
 

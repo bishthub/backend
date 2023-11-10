@@ -2,10 +2,12 @@ const Joi = require('joi');
 
 const questionSchema = Joi.object({
   questionText: Joi.string().required(),
+  questionNumber: Joi.number(),
   options: Joi.array()
     .items(
       Joi.object({
         text: Joi.string().required(),
+        blockchainNumber: Joi.number(),
         count: Joi.number().integer().min(0),
       })
     )
