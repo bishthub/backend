@@ -20,9 +20,10 @@ app.use(express.json({ limit: '20mb' }));
 require('dotenv').config();
 const corsOptions = {
   origin: '*', // Replace with your local development URL
+  methods: '*',
 };
 
-app.use(cors());
+app.use(cors(corsOptions));
 mongoose.connect('mongodb+srv://bisht:bishtji@dashboard.ihnggmw.mongodb.net/', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
