@@ -3,13 +3,14 @@ const Question = require('../models/questionModel');
 require('dotenv').config();
 // Assuming you have your contract ABI and address
 const contractABI = require('../services/taiko.json');
-const contractAddress = '0x7e3B78015f26405d5f2460c9A35F77d64CFA5A32';
+const { recordTransaction } = require('../utils/transactionUtils');
+const contractAddress = '0xf45Eba06d8b6d5987eCAEEf73EB4eCb4ec349d86';
 
 // Provider and Signer setup (Using a private key - Be careful with private key management)
 const provider = new ethers.providers.JsonRpcProvider(
-  'https://rpc.jolnir.taiko.xyz'
+  'https://goerli-rollup.arbitrum.io/rpc'
 );
-const privateKey = process.env.PRIVATE_KEY; // Store this securely and never expose it
+const privateKey = process.env.CHROME_PRIV_KEY; // Store this securely and never expose it
 const wallet = new ethers.Wallet(privateKey, provider);
 
 const contract = new ethers.Contract(contractAddress, contractABI, wallet);
@@ -131,6 +132,14 @@ exports.answerQuestion = async (req, res) => {
     option.count += 1;
     question.totalAnswered += 1;
     question.answeredByUsers.push(userId);
+
+    await recordTransaction({
+      moduleName: 'Questions',
+      amount: 50,
+      chain: 'arbitrum',
+      from: '6552a17a38e77523a012d3e5',
+      to: userId,
+    });
 
     await question.save();
 

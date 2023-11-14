@@ -3,6 +3,7 @@ const User = require('../models/userModel');
 const Wallet = require('../models/walletModel');
 const Transaction = require('../models/transactionModel');
 const Notification = require('../models/notificationModel');
+const { recordTransaction } = require('../utils/transactionUtils');
 
 exports.recordTransaction = async (req, res) => {
   try {
@@ -35,15 +36,15 @@ exports.getTransactions = async (req, res) => {
     if (amount) filters.amount = amount;
     if (date) filters.date = new Date(date);
 
-    // Use $or to match either from or to
+    // Assume there is a 'createdAt' or 'date' field in your Transaction schema
     const transactions = await Transaction.find({
       $or: [{ from: userId }, { to: userId }],
-      ...filters, // Add other filters
+      ...filters,
     })
-      .populate('from', 'username') // Populate the 'from' field with 'username'
-      .populate('to', 'username'); // Populate the 'to' field with 'username'
+      .sort({ date: -1 })
+      .populate('from', 'username')
+      .populate('to', 'username');
 
-    // Modify each transaction to include 'transfer' and 'username' properties
     const modifiedTransactions = transactions.map((transaction) => {
       const isSender = transaction.from._id.toString() === userId.toString();
       return {
@@ -138,15 +139,13 @@ exports.sendFund = async (req, res) => {
     await senderWallet.save();
     await recipientWallet.save();
 
-    // Record the transaction
-    const newTransaction = new Transaction({
+    await recordTransaction({
       moduleName: 'Transfer',
       amount: tokens,
       chain,
       from: senderUser._id,
       to: recipientUser._id,
     });
-    await newTransaction.save();
 
     // Create a notification for the recipient
     await createRecipientNotification(recipientUser, senderUser, tokens);

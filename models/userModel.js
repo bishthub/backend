@@ -34,7 +34,6 @@ const userSchema = new mongoose.Schema({
   telegram: { type: String },
   referralCode: {
     type: String,
-    required: true,
     unique: true,
   },
   isReferred: {

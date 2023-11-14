@@ -20,4 +20,10 @@ router.post(
 // Delete the user's cart
 router.delete('/', authMiddleware, cartController.deleteCart);
 
+router.post(
+  '/complete-purchase',
+  authMiddleware,
+  cartController.completePurchase
+);
+
 module.exports = router;
