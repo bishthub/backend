@@ -5,9 +5,11 @@ const Joi = require('joi');
 const schemas = {
   addDefaultChainsSchema: Joi.object({
     chainName: Joi.string().required(),
+    img: Joi.string().required(),
   }),
   updateDefaultChainsSchema: Joi.object({
     chainId: Joi.string().required(),
+    img: Joi.string().required(),
     chainName: Joi.string().required(),
   }),
 

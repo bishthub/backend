@@ -66,9 +66,9 @@ exports.getWalletandNFTDetails = async (req, res) => {
 
 exports.addDefaultChains = async (req, res) => {
   try {
-    const { chainName } = req.body;
+    const { chainName, img } = req.body;
 
-    const chain = new Chain({ chainName });
+    const chain = new Chain({ chainName, img });
     await chain.save();
 
     res
@@ -104,11 +104,11 @@ exports.deleteDefaultChains = async (req, res) => {
 
 exports.updateDefaultChains = async (req, res) => {
   try {
-    const { chainId, chainName } = req.body;
+    const { chainId, chainName, img } = req.body;
 
     const chain = await Chain.findByIdAndUpdate(
       chainId,
-      { chainName },
+      { chainName, img },
       { new: true }
     );
     res
@@ -127,7 +127,21 @@ exports.getWalletDetails = async (req, res) => {
     return res.status(404).send('Wallet not found');
   }
 
-  res.send(wallet);
+  // Find the corresponding chain images for each chain in the wallet
+  const chainsWithImages = await Promise.all(
+    wallet.chains.map(async (chain) => {
+      const chainData = await Chain.findOne({ chainName: chain.chainName });
+      if (chainData) {
+        return { ...chain.toObject(), img: chainData.img };
+      }
+      return chain;
+    })
+  );
+
+  // Replace the chains array in the wallet with the new array that includes images
+  const updatedWallet = { ...wallet.toObject(), chains: chainsWithImages };
+
+  res.send(updatedWallet);
 };
 
 // Add a new chain to the wallet's chains array
