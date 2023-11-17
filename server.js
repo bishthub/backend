@@ -14,6 +14,7 @@ const emailRoutes = require('./routes/emailRoutes');
 const nftScanRoutes = require('./routes/nftscanRoutes');
 const nftRoutes = require('./routes/nftRoutes');
 const questionRoutes = require('./routes/questionRoutes');
+const swapRoutes = require('./routes/swapRoutes');
 
 const app = express();
 app.use(express.json({ limit: '20mb' }));
@@ -42,6 +43,7 @@ app.use('/api/email', emailRoutes);
 app.use('/api/nftScan', nftScanRoutes);
 app.use('/api/nft', nftRoutes);
 app.use('/api/questions', questionRoutes);
+app.use('/api/swap', swapRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
