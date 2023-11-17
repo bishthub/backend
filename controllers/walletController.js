@@ -1,4 +1,5 @@
 const Wallet = require('../models/walletModel');
+const User = require('../models/userModel');
 const Chain = require('../models/chainModel');
 const omniAbi = require('../services/omniAbi.json');
 const arbAbi = require('../services/arbAbi.json');
@@ -126,6 +127,21 @@ exports.getWalletDetails = async (req, res) => {
   if (!wallet) {
     return res.status(404).send('Wallet not found');
   }
+
+  res.send(wallet);
+};
+
+exports.getWalletByUsername = async (req, res) => {
+  const username = req.query.username; // Retrieve the id from the query parameters
+
+  // Find the wallet by the provided id
+  const user = await User.findOne({ username: username });
+
+  if (!user) {
+    return res.status(404).send('Username not found');
+  }
+
+  const wallet = await Wallet.findOne({ _id: user.walletId });
 
   res.send(wallet);
 };

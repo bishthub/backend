@@ -22,9 +22,10 @@ router.put(
   walletController.updateChain
 );
 router.delete('/delete-chain/:chainId', walletController.deleteChain);
+
 router.get('/', walletController.getWalletDetails);
 router.get('/getWalletandNFTDetails', walletController.getWalletandNFTDetails);
-
+router.get('/username', walletController.getWalletByUsername);
 router.post(
   '/add-default-chains',
   adminMiddleware,

@@ -13,7 +13,6 @@ const schemas = {
   }),
   sendFundSchema: Joi.object({
     username: Joi.string().required(),
-    chain: Joi.string().required(),
     tokens: Joi.number().positive().required(),
   }),
   requestFundsSchema: Joi.object({

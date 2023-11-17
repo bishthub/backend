@@ -94,10 +94,14 @@ exports.getNotifications = async (req, res) => {
       _id: { $in: user.notifications },
     });
 
+    // Sort the notifications by createdAt in descending order
+    notifications.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
     // Extract the text and timestamps from notifications
     const formattedNotifications = notifications.map((notification) => ({
       text: notification.text,
       createdAt: notification.createdAt,
+      type: notification.type,
     }));
 
     res.status(200).json(formattedNotifications);

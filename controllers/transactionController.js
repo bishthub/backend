@@ -69,16 +69,24 @@ const createRecipientNotification = async (
   tokens
 ) => {
   const notificationText = `You have received ${tokens} tokens from ${senderUser.username}`;
-  const recipientNotification = new Notification({ text: notificationText });
+  const recipientNotification = new Notification({
+    text: notificationText,
+    type: 'Transfer',
+  });
   await recipientNotification.save();
   recipientUser.notifications.push(recipientNotification);
+  await recipientUser.save();
 };
 
 const createSenderNotification = async (senderUser, recipientUser, tokens) => {
   const notificationText = `You have sent ${tokens} tokens to ${recipientUser.username}`;
-  const senderNotification = new Notification({ text: notificationText });
+  const senderNotification = new Notification({
+    text: notificationText,
+    type: 'Transfer',
+  });
   await senderNotification.save();
   senderUser.notifications.push(senderNotification);
+  await senderUser.save();
 };
 
 exports.sendFund = async (req, res) => {
@@ -98,54 +106,54 @@ exports.sendFund = async (req, res) => {
       return res.status(404).send('Sender user not found');
     }
 
-    const senderWallet = await Wallet.findOne({ userId: senderUser._id });
+    // const senderWallet = await Wallet.findOne({ userId: senderUser._id });
 
-    if (!senderWallet) {
-      return res.status(404).send('Sender wallet not found');
-    }
+    // if (!senderWallet) {
+    //   return res.status(404).send('Sender wallet not found');
+    // }
 
-    // Check if the sender has enough tokens in the specified chain
-    const chainToUpdate = senderWallet.chains.find(
-      (c) => c.chainName === chain
-    );
-    if (!chainToUpdate || chainToUpdate.tokens < tokens) {
-      return res.status(400).send('Insufficient funds in the specified chain');
-    }
+    // // Check if the sender has enough tokens in the specified chain
+    // const chainToUpdate = senderWallet.chains.find(
+    //   (c) => c.chainName === chain
+    // );
+    // if (!chainToUpdate || chainToUpdate.tokens < tokens) {
+    //   return res.status(400).send('Insufficient funds in the specified chain');
+    // }
 
-    // Find the recipient's user and wallet
-    if (!recipientUser) {
-      return res.status(404).send('Recipient user not found');
-    }
+    // // Find the recipient's user and wallet
+    // if (!recipientUser) {
+    //   return res.status(404).send('Recipient user not found');
+    // }
 
-    const recipientWallet = await Wallet.findOne({ userId: recipientUser._id });
+    // const recipientWallet = await Wallet.findOne({ userId: recipientUser._id });
 
-    if (!recipientWallet) {
-      return res.status(404).send('Recipient wallet not found');
-    }
+    // if (!recipientWallet) {
+    //   return res.status(404).send('Recipient wallet not found');
+    // }
 
-    // Transfer tokens from sender to recipient in the specified chain
-    chainToUpdate.tokens -= tokens;
-    const recipientChain = recipientWallet.chains.find(
-      (c) => c.chainName === chain
-    );
+    // // Transfer tokens from sender to recipient in the specified chain
+    // chainToUpdate.tokens -= tokens;
+    // const recipientChain = recipientWallet.chains.find(
+    //   (c) => c.chainName === chain
+    // );
 
-    if (recipientChain) {
-      recipientChain.tokens += tokens;
-    } else {
-      recipientWallet.chains.push({ chainName: chain, tokens });
-    }
+    // if (recipientChain) {
+    //   recipientChain.tokens += tokens;
+    // } else {
+    //   recipientWallet.chains.push({ chainName: chain, tokens });
+    // }
 
-    // Save the changes
-    await senderWallet.save();
-    await recipientWallet.save();
+    // // Save the changes
+    // await senderWallet.save();
+    // await recipientWallet.save();
 
-    await recordTransaction({
-      moduleName: 'Transfer',
-      amount: tokens,
-      chain,
-      from: senderUser._id,
-      to: recipientUser._id,
-    });
+    // await recordTransaction({
+    //   moduleName: 'Transfer',
+    //   amount: tokens,
+    //   chain,
+    //   from: senderUser._id,
+    //   to: recipientUser._id,
+    // });
 
     // Create a notification for the recipient
     await createRecipientNotification(recipientUser, senderUser, tokens);
@@ -153,8 +161,8 @@ exports.sendFund = async (req, res) => {
     // Create a notification for the sender
     await createSenderNotification(senderUser, recipientUser, tokens);
 
-    // Save the changes
-    await senderUser.save();
+    // // Save the changes
+    // await senderUser.save();
 
     res.status(200).send('Funds transferred successfully');
   } catch (error) {
@@ -167,15 +175,15 @@ exports.requestFunds = async (req, res) => {
   try {
     const { chain, tokens } = req.body;
     const recipientUsername = req.body.username;
-
+    const senderUser = req.user._id;
     // Find the recipient's user
     const recipientUser = await User.findOne({ username: recipientUsername });
     if (!recipientUser) {
       return res.status(404).send('Recipient user not found');
     }
-
+    const senderUserName = await User.findOne({ _id: senderUser });
     // Create a notification for the recipient
-    const notificationText = `You have received a request from ${recipientUsername} to send ${tokens} tokens in ${chain}`;
+    const notificationText = `You have received a request from ${senderUserName.username} to send ${tokens} tokens in ${chain}`;
     const recipientNotification = new Notification({ text: notificationText });
     await recipientNotification.save();
 
