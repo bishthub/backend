@@ -179,7 +179,7 @@ exports.jackpotDone = async (req, res) => {
     await recordTransaction({
       moduleName: 'Jackpot',
       amount: amountWon,
-      chain: 'arbitrum',
+      chain: 'zeta',
       from: '6552a17a38e77523a012d3e5',
       to: userId,
     });

@@ -69,7 +69,7 @@ exports.completePurchase = async (req, res) => {
     await recordTransaction({
       moduleName: 'Purchase',
       amount: amountRedeemed,
-      chain: 'arbitrum',
+      chain: 'zeta',
       from: userId,
       to: '6552a17a38e77523a012d3e5',
     });

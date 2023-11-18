@@ -4,19 +4,34 @@ require('dotenv').config();
 // Assuming you have your contract ABI and address
 const contractABI = require('../services/taiko.json');
 const { recordTransaction } = require('../utils/transactionUtils');
-const contractAddress = '0xf45Eba06d8b6d5987eCAEEf73EB4eCb4ec349d86';
-
-// Provider and Signer setup (Using a private key - Be careful with private key management)
-const provider = new ethers.providers.JsonRpcProvider(
-  'https://goerli-rollup.arbitrum.io/rpc'
-);
-const privateKey = process.env.CHROME_PRIV_KEY; // Store this securely and never expose it
-const wallet = new ethers.Wallet(privateKey, provider);
-
-const contract = new ethers.Contract(contractAddress, contractABI, wallet);
 
 exports.addQuestion = async (req, res) => {
   try {
+    let contractAddress, provider, privateKey;
+    const chainName = req.body.chainName; // Assuming chainName is part of the request body
+
+    if (chainName === 'arbitrum') {
+      contractAddress = '0xf45Eba06d8b6d5987eCAEEf73EB4eCb4ec349d86';
+      provider = new ethers.providers.JsonRpcProvider(
+        'https://goerli-rollup.arbitrum.io/rpc'
+      );
+      privateKey = process.env.CHROME_PRIV_KEY;
+    } else if (chainName === 'zeta') {
+      contractAddress = '0x1e4421327240B90a1EB45Cbc1D82308443A91451';
+      provider = new ethers.providers.JsonRpcProvider(
+        'https://zetachain-athens-evm.blockpi.network/v1/rpc/public'
+      );
+      privateKey = process.env.ZETA_PRIV_KEY;
+    } else {
+      return res
+        .status(400)
+        .send({ error: 'Invalid or unsupported chain name.' });
+    }
+
+    // Create a wallet and contract instance
+    const wallet = new ethers.Wallet(privateKey, provider);
+    const contract = new ethers.Contract(contractAddress, contractABI, wallet);
+
     // Count existing questions to determine the next questionId
     const questionCount = await Question.countDocuments();
     const questionId = questionCount + 1;
