@@ -2,9 +2,9 @@ const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
-  email: { type: String, required: true, unique: true },
-  mobileNumber: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+  email: { type: String, sparse: true },
+  mobileNumber: { type: String },
+  password: { type: String },
   walletId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Wallet',
@@ -44,6 +44,7 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
   },
+  loginAddress: { type: String, unique: true },
   referredUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   totalReferred: { type: Number, default: 0 },
   notifications: [

@@ -26,6 +26,18 @@ const generateRandomReferralCode = () => {
 exports.register = async (req, res) => {
   try {
     // Check if username is taken
+    const { ethereumAddress } = req.body;
+    console.log(req.body);
+    if (!ethereumAddress) {
+      return res.status(400).send('Ethereum address is required');
+    }
+    // Check if a user with this Ethereum address already exists
+    const existingUser = await User.findOne({ loginAddress: ethereumAddress });
+    if (existingUser) {
+      return res
+        .status(400)
+        .send('This Ethereum address is already registered');
+    }
     const userWithSameUsername = await User.findOne({
       username: req.body.username,
     });
@@ -33,27 +45,12 @@ exports.register = async (req, res) => {
       return res.status(400).send('Username is already registered');
     }
 
-    // Check if email is taken
-    const userWithSameEmail = await User.findOne({ email: req.body.email });
-    if (userWithSameEmail) {
-      return res.status(400).send('Email is already registered');
-    }
-
-    // Check if mobile number is taken
-    const userWithSameMobileNumber = await User.findOne({
-      mobileNumber: req.body.mobileNumber,
-    });
-    if (userWithSameMobileNumber) {
-      return res.status(400).send('Mobile number is already registered');
-    }
-
     // If all checks pass, proceed to register the new user
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    // const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    console.log('HERE I AM', ethereumAddress);
     const user = new User({
       username: req.body.username,
-      email: req.body.email,
-      mobileNumber: req.body.mobileNumber,
-      password: hashedPassword,
+      loginAddress: ethereumAddress,
     });
 
     // Generate a unique 7-character referral code
@@ -76,10 +73,52 @@ exports.register = async (req, res) => {
 
     const wallet = new Wallet({
       userId: user._id,
+      chains: [
+        {
+          chainName: 'Arbitrum Goerli',
+          walletAddress: ethereumAddress,
+          chainId: '6546327867cf2a127d7a329a',
+        },
+        {
+          chainName: 'Blazpay',
+          walletAddress: ethereumAddress,
+          chainId: '654631f567cf2a127d7a328c',
+        },
+        {
+          chainName: 'Omni Testnet',
+          walletAddress: ethereumAddress,
+          chainId: '6546326367cf2a127d7a3297',
+        },
+        {
+          chainName: 'Matic',
+          walletAddress: ethereumAddress,
+          chainId: '654631e267cf2a127d7a3289',
+        },
+        {
+          chainName: 'Shardeum',
+          walletAddress: ethereumAddress,
+          chainId: '6557a06fe9b49dc72809ae44',
+        },
+        {
+          chainName: 'Router',
+          walletAddress: ethereumAddress,
+          chainId: '6557a089e9b49dc72809ae45',
+        },
+        {
+          chainName: 'Zeta',
+          walletAddress: ethereumAddress,
+          chainId: '655ed40dacc2b382311db172',
+        },
+        {
+          chainName: 'Taiko',
+          walletAddress: ethereumAddress,
+          chainId: '655ed41eacc2b382311db174',
+        },
+      ],
     });
 
     await wallet.save();
-
+    console.log('IT IS HERE');
     // Link user to the wallet
     user.walletId = wallet._id;
     await user.save();
@@ -91,19 +130,10 @@ exports.register = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-  const { loginField, password } = req.body;
-
-  // Check if the loginField is an email, username, or mobile number
-  const user = await User.findOne({
-    $or: [
-      { email: loginField },
-      { username: loginField },
-      { mobileNumber: loginField },
-    ],
-  });
-
-  if (!user || !(await bcrypt.compare(password, user.password))) {
-    return res.status(400).send('Invalid credentials');
+  const { ethereumAddress } = req.body;
+  const user = await User.findOne({ loginAddress: ethereumAddress });
+  if (!user) {
+    return res.status(400).send('User not found');
   }
 
   const token = jwt.sign({ _id: user._id, role: user.role }, 'YOUR_SECRET', {
@@ -112,7 +142,6 @@ exports.login = async (req, res) => {
   const userdata = {
     _id: user._id,
     username: user.username,
-    email: user.email,
     role: user.role,
   };
   res.json({ token, user: userdata });

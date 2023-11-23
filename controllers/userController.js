@@ -125,3 +125,17 @@ const getReferredUsers = async (req, res) => {
     return res.status(400).json({ error_msg: err.message });
   }
 };
+exports.getUsername = async (req, res) => {
+  try {
+    const { username } = req.query;
+    const user = await User.findOne({ username });
+    if (user) {
+      res.json({ available: false });
+    } else {
+      res.json({ available: true });
+    }
+  } catch (error) {
+    console.error('Error checking username:', error);
+    res.status(500).send('Internal Server Error');
+  }
+};

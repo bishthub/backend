@@ -11,6 +11,7 @@ router.put(
   validate(userValidations.updateProfileSchema),
   userController.updateProfile
 );
+router.get('/username', userController.getUsername);
 router.get('/profile/:id', userController.getProfile);
 router.get('/leaderboard', userController.getLeaderboard);
 router.get('/notifications', authMiddleware, userController.getNotifications);
