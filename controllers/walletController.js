@@ -3,6 +3,7 @@ const User = require('../models/userModel');
 const Chain = require('../models/chainModel');
 const omniAbi = require('../services/omniAbi.json');
 const arbAbi = require('../services/arbAbi.json');
+const taikoAbi = require('../services/taikoAbi.json');
 const { ethers } = require('ethers');
 
 exports.getWalletandNFTDetails = async (req, res) => {
@@ -34,6 +35,13 @@ exports.getWalletandNFTDetails = async (req, res) => {
           contractAddress = '0x2e84547878ced3b28c6060ec5b7afa0ec49892cc';
           contractABI = arbAbi;
           break;
+        case 'taiko':
+          provider = new ethers.providers.JsonRpcProvider(
+            'https://rpc.jolnir.taiko.xyz'
+          );
+          contractAddress = '0xFd92a3C7F4eE3AE4783dF6E05E92e3c4038C14f8';
+          contractABI = taikoAbi;
+          break;
         default:
           console.log(`Unsupported chain: ${chainName}`);
           continue;
@@ -49,6 +57,8 @@ exports.getWalletandNFTDetails = async (req, res) => {
       if (chainName.toLowerCase() === 'arbitrum goerli') {
         balance = await contract.countByUser(walletAddress);
       } else if (chainName.toLowerCase() === 'omni') {
+        balance = await contract.balanceOf(walletAddress);
+      } else if (chainName.toLowerCase() === 'taiko') {
         balance = await contract.balanceOf(walletAddress);
       } else {
         // Skip unsupported chains

@@ -95,10 +95,10 @@ exports.sendFund = async (req, res) => {
     const sender = req.user._id;
     const recipientUsername = username; // Assuming the sender is authenticated
     const recipientUser = await User.findOne({ username: recipientUsername });
-
+    console.log('RECIPIENT USERNAME', recipientUser);
     // Find the sender's user and wallet
     const senderUser = await User.findById(sender);
-
+    console.log('senderUser USERNAME', senderUser);
     if (senderUser.id == recipientUser.id)
       return res.status(400).send("Sender and recipient can't be the same");
 
@@ -184,7 +184,10 @@ exports.requestFunds = async (req, res) => {
     const senderUserName = await User.findOne({ _id: senderUser });
     // Create a notification for the recipient
     const notificationText = `You have received a request from ${senderUserName.username} to send ${tokens} tokens in ${chain}`;
-    const recipientNotification = new Notification({ text: notificationText });
+    const recipientNotification = new Notification({
+      text: notificationText,
+      type: 'Request',
+    });
     await recipientNotification.save();
 
     // Add the notification to the recipient's notifications

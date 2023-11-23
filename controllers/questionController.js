@@ -22,6 +22,12 @@ exports.addQuestion = async (req, res) => {
         'https://zetachain-athens-evm.blockpi.network/v1/rpc/public'
       );
       privateKey = process.env.ZETA_PRIV_KEY;
+    } else if (chainName === 'taiko') {
+      contractAddress = '0xBB7c405bAB67C0191cacCe92a93440fB5A871e2c';
+      provider = new ethers.providers.JsonRpcProvider(
+        'https://rpc.jolnir.taiko.xyz'
+      );
+      privateKey = process.env.PRIVATE_KEY;
     } else {
       return res
         .status(400)
