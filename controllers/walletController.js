@@ -42,6 +42,13 @@ exports.getWalletandNFTDetails = async (req, res) => {
           contractAddress = '0xFd92a3C7F4eE3AE4783dF6E05E92e3c4038C14f8';
           contractABI = taikoAbi;
           break;
+        case 'zeta':
+          provider = new ethers.providers.JsonRpcProvider(
+            'https://rpc.jolnir.taiko.xyz'
+          );
+          contractAddress = '0xFd92a3C7F4eE3AE4783dF6E05E92e3c4038C14f8';
+          contractABI = taikoAbi;
+          break;
         default:
           console.log(`Unsupported chain: ${chainName}`);
           continue;
@@ -295,6 +302,100 @@ exports.deleteChain = async (req, res) => {
     await wallet.save();
 
     res.status(200).json({ message: 'Chain deleted successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+exports.getAndUpdateWalletBalance = async (req, res) => {
+  try {
+    const walletAddress = req.params.walletAddress; // Assuming the wallet address is passed as a URL parameter
+
+    // Ensure the address is valid
+    if (!ethers.utils.isAddress(walletAddress)) {
+      return res.status(400).send('Invalid wallet address');
+    }
+
+    // Fetch the user based on the loginAddress with a case-insensitive query
+    const user = await User.findOne({
+      loginAddress: new RegExp('^' + walletAddress + '$', 'i'),
+    });
+    if (!user) {
+      return res.status(404).send('User not found');
+    }
+
+    // Fetch the wallet using the walletId from the user
+    const wallet = await Wallet.findById(user.walletId);
+    if (!wallet) {
+      return res.status(404).send('Wallet not found');
+    }
+
+    let totalBalance = 0;
+    let chainBalances = [];
+    // Iterate over each chain in the wallet and update the balance
+    for (const chain of wallet.chains) {
+      let provider, contractAddress, contractABI, balance;
+
+      // Set provider, contractAddress, and contractABI based on the chainName
+      switch (chain.chainName.toLowerCase()) {
+        // case 'omni testnet':
+        //   provider = new ethers.providers.JsonRpcProvider(
+        //     'https://testnet.omni.network'
+        //   );
+        //   contractAddress = '0x2E84547878CeD3B28C6060ec5b7afA0ec49892CC';
+        //   contractABI = omniAbi;
+        //   break;
+        // case 'arbitrum goerli':
+        //   provider = new ethers.providers.JsonRpcProvider(
+        //     'https://goerli-rollup.arbitrum.io/rpc'
+        //   );
+        //   contractAddress = '0x2e84547878ced3b28c6060ec5b7afa0ec49892cc';
+        //   contractABI = arbAbi;
+        //   break;
+        case 'taiko':
+          provider = new ethers.providers.JsonRpcProvider(
+            'https://rpc.jolnir.taiko.xyz'
+          );
+          contractAddress = '0x9A4125C28207F7De1EDc7E4c16479cd44aBe772E';
+          contractABI = taikoAbi;
+          break;
+        case 'zeta':
+          provider = new ethers.providers.JsonRpcProvider(
+            'https://zetachain-athens-evm.blockpi.network/v1/rpc/public'
+          );
+          contractAddress = '0x10cA0B3b575F23CDBE66E0502585A4F7E2D8AaB6';
+          contractABI = taikoAbi;
+          break;
+        // Add cases for other chains as needed
+        default:
+          console.log(`Unsupported chain: ${chain.chainName}`);
+          continue;
+      }
+
+      const contract = new ethers.Contract(
+        contractAddress,
+        contractABI,
+        provider
+      );
+
+      balance = await contract.balanceOf(walletAddress); // Assuming balanceOf is the method for all chains
+      const chainBalance = ethers.utils.formatEther(balance); // Convert to Ether
+      totalBalance += parseFloat(chainBalance); // Add to the total balance
+
+      // Add chain balance to array
+      chainBalances.push({
+        chainName: chain.chainName,
+        balance: chainBalance,
+      });
+    }
+    const formattedTotalBalance = totalBalance.toFixed(3);
+    // Save the updated wallet with the new balances
+    wallet.totalTokens = totalBalance;
+    await wallet.save();
+
+    // Send the total balance as a response
+    res.json({ chainBalances, totalBalance: formattedTotalBalance });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });

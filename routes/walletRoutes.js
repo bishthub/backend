@@ -8,6 +8,10 @@ const validate = require('../middleware/validate');
 
 // Public route
 router.get('/get-default-chains', walletController.getDefaultChains);
+router.get(
+  '/balance/:walletAddress',
+  walletController.getAndUpdateWalletBalance
+);
 // Ensure the user is authenticated before accessing the jackpot routes
 router.use(authMiddleware);
 
