@@ -1,5 +1,5 @@
 // entryPassModel.js
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const entryPassSchema = new mongoose.Schema({
   name: {
@@ -22,8 +22,16 @@ const entryPassSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  address: {
+    type: String,
+    required: true,
+  },
+  symbol: {
+    type: String,
+    required: true,
+  },
 });
 
-const EntryPass = mongoose.model("EntryPass", entryPassSchema);
+const EntryPass = mongoose.model('EntryPass', entryPassSchema);
 
 module.exports = EntryPass;

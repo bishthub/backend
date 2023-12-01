@@ -17,11 +17,11 @@ exports.addQuestion = async (req, res) => {
       );
       privateKey = process.env.CHROME_PRIV_KEY;
     } else if (chainName === 'zeta') {
-      contractAddress = '0x1e4421327240B90a1EB45Cbc1D82308443A91451';
+      contractAddress = '0x7E02a03c711DcAaBFd6d90414250a8713e81DF6a';
       provider = new ethers.providers.JsonRpcProvider(
         'https://zetachain-athens-evm.blockpi.network/v1/rpc/public'
       );
-      privateKey = process.env.ZETA_PRIV_KEY;
+      privateKey = process.env.PRIVATE_KEY;
     } else if (chainName === 'taiko') {
       contractAddress = '0xBB7c405bAB67C0191cacCe92a93440fB5A871e2c';
       provider = new ethers.providers.JsonRpcProvider(
@@ -33,7 +33,7 @@ exports.addQuestion = async (req, res) => {
         .status(400)
         .send({ error: 'Invalid or unsupported chain name.' });
     }
-
+    console.log('HERE');
     // Create a wallet and contract instance
     const wallet = new ethers.Wallet(privateKey, provider);
     const contract = new ethers.Contract(contractAddress, contractABI, wallet);

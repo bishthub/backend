@@ -330,7 +330,7 @@ exports.getAndUpdateWalletBalance = async (req, res) => {
     if (!wallet) {
       return res.status(404).send('Wallet not found');
     }
-
+    console.log('WALLET', wallet);
     let totalBalance = 0;
     let chainBalances = [];
     // Iterate over each chain in the wallet and update the balance
@@ -364,7 +364,7 @@ exports.getAndUpdateWalletBalance = async (req, res) => {
           provider = new ethers.providers.JsonRpcProvider(
             'https://zetachain-athens-evm.blockpi.network/v1/rpc/public'
           );
-          contractAddress = '0x10cA0B3b575F23CDBE66E0502585A4F7E2D8AaB6';
+          contractAddress = '0x2De15CFB879fC6Bf4f48E1c6b9b2466f3Da8BDb5';
           contractABI = taikoAbi;
           break;
         // Add cases for other chains as needed
@@ -381,8 +381,9 @@ exports.getAndUpdateWalletBalance = async (req, res) => {
 
       balance = await contract.balanceOf(walletAddress); // Assuming balanceOf is the method for all chains
       const chainBalance = ethers.utils.formatEther(balance); // Convert to Ether
+      console.log(`Balance for ${chain.chainName}:`, chainBalance);
       totalBalance += parseFloat(chainBalance); // Add to the total balance
-
+      chain.tokens = parseFloat(chainBalance);
       // Add chain balance to array
       chainBalances.push({
         chainName: chain.chainName,
@@ -391,7 +392,7 @@ exports.getAndUpdateWalletBalance = async (req, res) => {
     }
     const formattedTotalBalance = totalBalance.toFixed(3);
     // Save the updated wallet with the new balances
-    wallet.totalTokens = totalBalance;
+    // wallet.totalTokens = totalBalance;
     await wallet.save();
 
     // Send the total balance as a response

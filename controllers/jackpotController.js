@@ -144,32 +144,40 @@ exports.canJackpot = async (req, res) => {
 
 exports.spinDone = async (req, res) => {
   try {
-    const userId = req.user._id;
-    const amountWon = req.body.amount;
-
-    // Fetch user's wallet and add tokens
-    const wallet = await Wallet.findOne({ userId: userId });
-    const recipientChain = wallet.chains.find((c) => c.chainName === 'Blazpay');
-
-    if (recipientChain) {
-      recipientChain.tokens += amountWon;
-    } else {
-      wallet.chains.push({ chainName: 'Blazpay', tokens: amountWon });
-    }
-    wallet.totalTokens += amountWon;
-    await wallet.save();
-
-    // Add spin time
-    const user = await User.findById(userId);
-    user.spins.push({ timestamp: new Date() });
-    await user.save();
-
-    return res.status(200).json({
-      user,
-      message: 'Spin saved successfully',
-    });
-  } catch {}
+    return res.status(200).send('2');
+  } catch (e) {
+    console.log(e);
+  }
 };
+
+// exports.spinDone = async (req, res) => {
+//   try {
+//     const userId = req.user._id;
+//     const amountWon = req.body.amount;
+
+//     // Fetch user's wallet and add tokens
+//     const wallet = await Wallet.findOne({ userId: userId });
+//     const recipientChain = wallet.chains.find((c) => c.chainName === 'Blazpay');
+
+//     if (recipientChain) {
+//       recipientChain.tokens += amountWon;
+//     } else {
+//       wallet.chains.push({ chainName: 'Blazpay', tokens: amountWon });
+//     }
+//     wallet.totalTokens += amountWon;
+//     await wallet.save();
+
+//     // Add spin time
+//     const user = await User.findById(userId);
+//     user.spins.push({ timestamp: new Date() });
+//     await user.save();
+
+//     return res.status(200).json({
+//       user,
+//       message: 'Spin saved successfully',
+//     });
+//   } catch {}
+// };
 
 exports.jackpotDone = async (req, res) => {
   try {

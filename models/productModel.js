@@ -7,6 +7,10 @@ const productSchema = new mongoose.Schema({
   chain: { type: String, required: true },
   description: { type: String, required: true },
   quantity: { type: Number, required: true },
+  mint_url: {
+    type: String,
+    required: true,
+  },
 });
 
 module.exports = mongoose.model('Product', productSchema);

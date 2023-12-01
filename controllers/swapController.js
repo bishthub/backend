@@ -1,3 +1,42 @@
+const User = require('../models/userModel');
+const Swap = require('../models/swapModel');
+
+const swapDone = async (req, res) => {
+  const userId = req.user._id;
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+
+    let swap = await Swap.findOne({ user: user._id });
+
+    if (!swap) {
+      swap = new Swap({ user: user._id });
+    }
+
+    const today = new Date().setHours(0, 0, 0, 0);
+    if (swap.lastSwapDate.setHours(0, 0, 0, 0) < today) {
+      swap.dailySwapCount = 0;
+    }
+
+    swap.totalSwapCount++;
+    swap.dailySwapCount++;
+    swap.lastSwapDate = Date.now();
+
+    await swap.save();
+
+    res.json({
+      totalSwapCount: swap.totalSwapCount,
+      dailySwapCount: swap.dailySwapCount,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
+  }
+};
+
 const getChains = async (req, res) => {
   const rubic = [
     {
@@ -88,4 +127,4 @@ const getChains = async (req, res) => {
   });
 };
 
-module.exports = { getChains };
+module.exports = { getChains, swapDone };

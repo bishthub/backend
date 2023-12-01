@@ -11,7 +11,7 @@ const validate = require('../middleware/validate');
 router.post(
   '/spinDone',
   authMiddleware,
-  validate(jackpotValidations.spinDone),
+  // validate(jackpotValidations.spinDone),
   jackpotController.spinDone
 );
 router.post(
