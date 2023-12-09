@@ -87,7 +87,7 @@ exports.getWalletandNFTDetails = async (req, res) => {
 
 exports.getZetaBalance = async (req, res) => {
   try {
-    let nftDetails = [];
+    console.log('req.query.address', req.query.address);
     let provider, contractAddress, contractABI, balance;
     provider = new ethers.providers.JsonRpcProvider(
       'https://zetachain-athens-evm.blockpi.network/v1/rpc/public'
