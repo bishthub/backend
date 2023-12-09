@@ -20,7 +20,7 @@ const app = express();
 app.use(express.json({ limit: '20mb' }));
 require('dotenv').config();
 const corsOptions = {
-  origin: '*', // Replace with your local development URL
+  origin: ['https://galxe.com', '*'], // Replace with your local development URL
   methods: '*',
 };
 

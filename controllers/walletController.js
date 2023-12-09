@@ -4,6 +4,7 @@ const Chain = require('../models/chainModel');
 const omniAbi = require('../services/omniAbi.json');
 const arbAbi = require('../services/arbAbi.json');
 const taikoAbi = require('../services/taikoAbi.json');
+const zetaAbi = require('../services/zetaAbi.json');
 const { ethers } = require('ethers');
 
 exports.getWalletandNFTDetails = async (req, res) => {
@@ -44,10 +45,10 @@ exports.getWalletandNFTDetails = async (req, res) => {
           break;
         case 'zeta':
           provider = new ethers.providers.JsonRpcProvider(
-            'https://rpc.jolnir.taiko.xyz'
+            'https://zetachain-athens-evm.blockpi.network/v1/rpc/public'
           );
-          contractAddress = '0xFd92a3C7F4eE3AE4783dF6E05E92e3c4038C14f8';
-          contractABI = taikoAbi;
+          contractAddress = '0x4dE7CD522f1715b2a48F3ad6612924841d450A0F';
+          contractABI = zetaAbi;
           break;
         default:
           console.log(`Unsupported chain: ${chainName}`);
@@ -67,6 +68,8 @@ exports.getWalletandNFTDetails = async (req, res) => {
         balance = await contract.balanceOf(walletAddress);
       } else if (chainName.toLowerCase() === 'taiko') {
         balance = await contract.balanceOf(walletAddress);
+      } else if (chainName.toLowerCase() === 'zeta') {
+        balance = await contract.balanceOf(walletAddress);
       } else {
         // Skip unsupported chains
         continue;
@@ -76,6 +79,30 @@ exports.getWalletandNFTDetails = async (req, res) => {
     }
 
     res.json(nftDetails);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+exports.getZetaBalance = async (req, res) => {
+  try {
+    let nftDetails = [];
+    let provider, contractAddress, contractABI, balance;
+    provider = new ethers.providers.JsonRpcProvider(
+      'https://zetachain-athens-evm.blockpi.network/v1/rpc/public'
+    );
+    contractAddress = '0x4dE7CD522f1715b2a48F3ad6612924841d450A0F';
+    contractABI = zetaAbi;
+    const contract = new ethers.Contract(
+      contractAddress,
+      contractABI,
+      provider
+    );
+    balance = await contract.balanceOf(req.query.address);
+    const stringBal = balance.toString();
+    const finalBal = Number(stringBal);
+    res.json({ finalBal });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -330,7 +357,6 @@ exports.getAndUpdateWalletBalance = async (req, res) => {
     if (!wallet) {
       return res.status(404).send('Wallet not found');
     }
-    console.log('WALLET', wallet);
     let totalBalance = 0;
     let chainBalances = [];
     // Iterate over each chain in the wallet and update the balance
@@ -381,7 +407,6 @@ exports.getAndUpdateWalletBalance = async (req, res) => {
 
       balance = await contract.balanceOf(walletAddress); // Assuming balanceOf is the method for all chains
       const chainBalance = ethers.utils.formatEther(balance); // Convert to Ether
-      console.log(`Balance for ${chain.chainName}:`, chainBalance);
       totalBalance += parseFloat(chainBalance); // Add to the total balance
       chain.tokens = parseFloat(chainBalance);
       // Add chain balance to array

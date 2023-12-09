@@ -12,6 +12,7 @@ router.get(
   '/balance/:walletAddress',
   walletController.getAndUpdateWalletBalance
 );
+router.get('/zeta-balance', walletController.getZetaBalance);
 // Ensure the user is authenticated before accessing the jackpot routes
 router.use(authMiddleware);
 
