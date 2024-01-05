@@ -24,6 +24,8 @@ const schemas = {
       'string.empty': `Type cannot be an empty field`,
       'any.required': `Type is a required field`,
     }),
+    address: Joi.string().required(),
+    symbol: Joi.string().required(),
     // additional fields can be added here if necessary
   }),
   updateEntryPass: Joi.object({

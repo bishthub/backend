@@ -20,11 +20,18 @@ const app = express();
 app.use(express.json({ limit: '20mb' }));
 require('dotenv').config();
 const corsOptions = {
-  origin: ['https://galxe.com', '*'], // Replace with your local development URL
+  origin: [
+    'https://galxe.com',
+    'http://localhost:5173',
+    'https://blazpay.com',
+    'http://localhost:5174',
+  ], // Replace with your local development URL
   methods: '*',
 };
 
 app.use(cors(corsOptions));
+// res.setHeader('Acess-Control-Allow-Origin',
+
 mongoose.connect('mongodb+srv://bisht:bishtji@dashboard.ihnggmw.mongodb.net/', {
   useNewUrlParser: true,
   useUnifiedTopology: true,

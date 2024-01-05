@@ -90,9 +90,9 @@ exports.getZetaBalance = async (req, res) => {
     console.log('req.query.address', req.query.address);
     let provider, contractAddress, contractABI, balance;
     provider = new ethers.providers.JsonRpcProvider(
-      'https://zetachain-athens-evm.blockpi.network/v1/rpc/public'
+      'https://bsc-dataseed1.binance.org/'
     );
-    contractAddress = '0x4dE7CD522f1715b2a48F3ad6612924841d450A0F';
+    contractAddress = '0x247314AB4d4a0518962D1e980Fc21C3f757B5631';
     contractABI = zetaAbi;
     const contract = new ethers.Contract(
       contractAddress,

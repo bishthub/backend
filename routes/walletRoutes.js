@@ -8,12 +8,14 @@ const validate = require('../middleware/validate');
 
 // Public route
 router.get('/get-default-chains', walletController.getDefaultChains);
+router.get('/bitgert-balance', walletController.getZetaBalance);
 router.get(
   '/balance/:walletAddress',
   walletController.getAndUpdateWalletBalance
 );
-router.get('/zeta-balance', walletController.getZetaBalance);
+
 // Ensure the user is authenticated before accessing the jackpot routes
+
 router.use(authMiddleware);
 
 router.post(

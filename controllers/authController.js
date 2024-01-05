@@ -2,6 +2,8 @@ const User = require('../models/userModel');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const Wallet = require('../models/walletModel');
+const { ethers } = require('ethers');
+const zetaAbi = require('../services/zetaAbi.json');
 
 const generateUniqueReferralCode = async () => {
   while (true) {
@@ -129,22 +131,74 @@ exports.register = async (req, res) => {
   }
 };
 
+const getNFTBalance = async (address) => {
+  const providers = {
+    bsc: new ethers.providers.JsonRpcProvider(
+      'https://bsc-dataseed1.binance.org/'
+    ),
+    zeta: new ethers.providers.JsonRpcProvider(
+      'https://zetachain-athens-evm.blockpi.network/v1/rpc/public'
+    ),
+  };
+
+  const contractAddresses = {
+    bsc: '0x247314AB4d4a0518962D1e980Fc21C3f757B5631',
+    zeta: '0x4dE7CD522f1715b2a48F3ad6612924841d450A0F',
+  };
+
+  const contractABI = zetaAbi; // Assuming the ABI is the same for both contracts
+
+  const bscContract = new ethers.Contract(
+    contractAddresses.bsc,
+    contractABI,
+    providers.bsc
+  );
+  const zetaContract = new ethers.Contract(
+    contractAddresses.zeta,
+    contractABI,
+    providers.zeta
+  );
+
+  const [bscBalance, zetaBalance] = await Promise.all([
+    bscContract.balanceOf(address),
+    zetaContract.balanceOf(address),
+  ]);
+
+  return bscBalance.add(zetaBalance);
+};
+
 exports.login = async (req, res) => {
   const { ethereumAddress } = req.body;
-  const user = await User.findOne({ loginAddress: ethereumAddress });
-  if (!user) {
-    return res.status(400).send('User not found');
-  }
 
-  const token = jwt.sign({ _id: user._id, role: user.role }, 'YOUR_SECRET', {
-    expiresIn: '60m',
-  });
-  const userdata = {
-    _id: user._id,
-    username: user.username,
-    role: user.role,
-  };
-  res.json({ token, user: userdata });
+  try {
+    const totalNFTBalance = await getNFTBalance(ethereumAddress);
+
+    if (totalNFTBalance.isZero()) {
+      return res
+        .status(400)
+        .send('You do not have Zeta or Bitgert entry pass.');
+    }
+
+    const user = await User.findOne({ loginAddress: ethereumAddress });
+    if (!user) {
+      return res.status(400).send('User not found');
+    }
+
+    const token = jwt.sign({ _id: user._id, role: user.role }, 'YOUR_SECRET', {
+      expiresIn: '60m',
+    });
+
+    const userdata = {
+      _id: user._id,
+      username: user.username,
+      role: user.role,
+    };
+
+    res.json({ token, user: userdata });
+  } catch (error) {
+    console.error('Error during login:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 };
 
 exports.dashboard = (req, res) => {
