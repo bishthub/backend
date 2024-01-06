@@ -50,6 +50,13 @@ exports.getWalletandNFTDetails = async (req, res) => {
           contractAddress = '0x4dE7CD522f1715b2a48F3ad6612924841d450A0F';
           contractABI = zetaAbi;
           break;
+        case 'binance':
+          provider = new ethers.providers.JsonRpcProvider(
+            'https://bsc-dataseed1.binance.org/'
+          );
+          contractAddress = '0x247314AB4d4a0518962D1e980Fc21C3f757B5631';
+          contractABI = zetaAbi;
+          break;
         default:
           console.log(`Unsupported chain: ${chainName}`);
           continue;
@@ -69,6 +76,8 @@ exports.getWalletandNFTDetails = async (req, res) => {
       } else if (chainName.toLowerCase() === 'taiko') {
         balance = await contract.balanceOf(walletAddress);
       } else if (chainName.toLowerCase() === 'zeta') {
+        balance = await contract.balanceOf(walletAddress);
+      } else if (chainName.toLowerCase() === 'binance') {
         balance = await contract.balanceOf(walletAddress);
       } else {
         // Skip unsupported chains

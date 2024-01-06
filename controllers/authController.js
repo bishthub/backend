@@ -116,6 +116,11 @@ exports.register = async (req, res) => {
           walletAddress: ethereumAddress,
           chainId: '655ed41eacc2b382311db174',
         },
+        {
+          chainName: 'Binance',
+          walletAddress: ethereumAddress,
+          chainId: '6599594ea8b3abeaf96d6ee8',
+        },
       ],
     });
 

@@ -105,6 +105,9 @@ exports.sendFund = async (req, res) => {
     if (!senderUser) {
       return res.status(404).send('Sender user not found');
     }
+    if (!recipientUser) {
+      return res.status(404).send('Receipient user not found');
+    }
 
     // const senderWallet = await Wallet.findOne({ userId: senderUser._id });
 

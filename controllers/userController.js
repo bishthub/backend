@@ -46,6 +46,9 @@ exports.getProfile = async (req, res) => {
 };
 
 exports.getLeaderboard = async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const sortCriteria = req.query.sort || 'totalTokens';
   try {
     const leaderboard = await Wallet.aggregate([
       {
@@ -59,9 +62,9 @@ exports.getLeaderboard = async (req, res) => {
       {
         $unwind: '$user',
       },
-      {
-        $sort: { totalTokens: -1 }, // Sort by tokens in descending order
-      },
+      { $sort: { [sortCriteria]: -1 } }, // Dynamic sorting
+      { $skip: (page - 1) * limit }, // Skip for pagination
+      { $limit: limit }, // Limit for pagination
       {
         $project: {
           _id: 0, // Exclude the _id field
